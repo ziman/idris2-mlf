@@ -1,0 +1,4 @@
+package idris2-mlf
+depends = idris2
+sourcedir = "src"
+executable = idris2-mlf
