@@ -1,4 +1,5 @@
 package idris2-mlf
-depends = idris2
+depends = idris2, prelude, base, contrib
 sourcedir = "src"
+main = Main
 executable = idris2-mlf

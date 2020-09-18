@@ -2,6 +2,8 @@ module Main
 
 import Idris.Driver
 
+import Pretty
+
 import Compiler.Common
 import Compiler.CompileExpr
 import Compiler.Inline
@@ -16,7 +18,6 @@ import Core.Options
 import Core.TT
 import Utils.Hex
 import Utils.Path
-import Utils.Pretty
 
 import Data.List
 import Data.List1
