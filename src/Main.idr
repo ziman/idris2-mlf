@@ -3,6 +3,8 @@ module Main
 import Idris.Driver
 
 import Pretty
+import StringMap
+import SortedSet
 
 import Compiler.Common
 import Compiler.CompileExpr
@@ -23,10 +25,8 @@ import Data.List
 import Data.List1
 import Data.Maybe
 import Data.NameMap
-import Data.StringMap
 import Data.Strings
 import Data.Vect
-import Data.SortedSet
 
 import System
 import System.Directory
