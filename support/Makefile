@@ -1,6 +1,10 @@
 CC = cc -O2 -g -I $(LIBDIR)/support/c -I $(shell ocamlc -where)
 OCAMLOPT = ocamlfind opt -I +threads -g
 
+.PHONY: clean
+
+all: .ts-build
+
 .ts-build: rts.o Rts.cmi Rts.cmx
 	touch .ts-build
 
@@ -15,3 +19,6 @@ Rts.cmi: Rts.mli
 
 Rts.cmx: Rts.ml
 	$(OCAMLOPT) -c Rts.ml
+
+clean:
+	-rm -f Rts.{mli,cmi,cmx} rts.o

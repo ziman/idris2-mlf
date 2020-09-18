@@ -1,2 +1,7 @@
 /build/
 .ts-*
+*.cmi
+*.cmx
+*.mli
+*.o
+*.a
