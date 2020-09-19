@@ -42,11 +42,14 @@ import System.Info
 --
 emulatedForeigns : StringMap String
 emulatedForeigns = StringMap.fromList
+  -- general
   [ ("scheme:string-concat", "Rts.Bytes.concat")
   , ("scheme:blodwen-args",  "Rts.System.get_args")
   , ("scheme:string-pack",   "Rts.String.pack")
   , ("scheme:string-unpack", "Rts.String.unpack")
-  , ("scheme:read-char",     "Rts.String.read_char")
+  , ("scheme:read-string-char", "Rts.String.read_char")
+
+  -- clock
   , ("scheme:blodwen-clock-time-gccpu", "Rts.System.clocktime_gc_cpu")
   , ("scheme:blodwen-clock-time-gcreal", "Rts.System.clocktime_gc_real")
   , ("scheme:blodwen-clock-time-monotonic", "Rts.System.clocktime_monotonic")
@@ -55,7 +58,7 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:blodwen-clock-time-utc", "Rts.System.clocktime_utc")
   , ("scheme:blodwen-clock-second", "Rts.System.os_clock_second")
   , ("scheme:blodwen-clock-nanosecond", "Rts.System.os_clock_nanosecond")
-  , ("scheme:blodwen-clock-is-time?", "Rts.System.os_clock_valid")
+  , ("scheme:blodwen-is-time?", "Rts.System.os_clock_valid")
   ]
 
 heXX : Int -> String

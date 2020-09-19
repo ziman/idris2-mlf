@@ -29,4 +29,6 @@ install-support: support/.ts-build
 clean:
 	make -C support clean
 	idris2 --clean idris2-mlf.ipkg
+	-rm -rf build/exec/mlf-idris2-mlf
 	idris2 --clean idris2-mlf-mlf.ipkg
+	-rm -rf build/exec/mlf-idris2-mlf-mlf
