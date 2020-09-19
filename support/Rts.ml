@@ -55,6 +55,17 @@ module System = struct
         | "Win32" -> "windows"
         | "Cygwin" -> "windows"
         | _ -> "unknown"
+
+    type os_clock
+    external clocktime_gc_cpu : world -> os_clock = "ml_clocktime_gc_cpu"
+    external clocktime_gc_real : world -> os_clock = "ml_clocktime_gc_real"
+    external clocktime_monotonic : world -> os_clock = "ml_clocktime_monotonic"
+    external clocktime_process : world -> os_clock = "ml_clocktime_process"
+    external clocktime_thread : world -> os_clock = "ml_clocktime_thread"
+    external clocktime_utc : world -> os_clock = "ml_clocktime_utc"
+    external os_clock_nanosecond : os_clock -> int64 = "ml_os_clock_nanosecond"
+    external os_clock_second : os_clock -> int64 = "ml_os_clock_second"
+    external os_clock_valid : os_clock -> int = "ml_os_clock_valid"
 end
 
 module String = struct
