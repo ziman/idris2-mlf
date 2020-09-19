@@ -59,6 +59,19 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:blodwen-clock-second", "Rts.System.os_clock_second")
   , ("scheme:blodwen-clock-nanosecond", "Rts.System.os_clock_nanosecond")
   , ("scheme:blodwen-is-time?", "Rts.System.os_clock_valid")
+
+  -- chez refuses to use native C functions for buffers
+  , ("scheme:blodwen-new-buffer", "Rts.C.Lib_libidris2_support.idris2_newBuffer")
+  , ("scheme:blodwen-buffer-size", "Rts.C.Lib_libidris2_support.idris2_getBufferSize")
+  , ("scheme:blodwen-buffer-copydata", "Rts.C.Lib_libidris2_support.idris2_copyBuffer")
+  , ("scheme:blodwen-buffer-getbyte", "Rts.C.Lib_libidris2_support.idris2_getBufferByte")
+  , ("scheme:blodwen-buffer-getint", "Rts.C.Lib_libidris2_support.idris2_getBufferInt")
+  , ("scheme:blodwen-buffer-getdouble", "Rts.C.Lib_libidris2_support.idris2_getBufferDouble")
+  , ("scheme:blodwen-buffer-getstring", "Rts.C.Lib_libidris2_support.idris2_getBufferString")
+  , ("scheme:blodwen-buffer-setbyte", "Rts.C.Lib_libidris2_support.idris2_setBufferByte")
+  , ("scheme:blodwen-buffer-setint", "Rts.C.Lib_libidris2_support.idris2_setBufferInt")
+  , ("scheme:blodwen-buffer-setdouble", "Rts.C.Lib_libidris2_support.idris2_setBufferDouble")
+  , ("scheme:blodwen-buffer-setstring", "Rts.C.Lib_libidris2_support.idris2_setBufferString")
   ]
 
 heXX : Int -> String
