@@ -27,7 +27,7 @@ Then you can use `build/exec/idris2-mlf --codegen mlf` to compile stuff.
 ### Install self-hosted idris2-mlf
 
 In the root directory of `idris2-mlf`, run `make install`.
-This will build `idris2-mlf` using `--codegen mlf` to obtain a statically
+This will build `idris2-mlf-mlf` using `--codegen mlf` to obtain a statically
 linked native binary that will be installed in `${IDRIS_PREFIX}/bin`.
 
 ## License
