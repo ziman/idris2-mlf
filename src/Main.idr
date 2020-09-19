@@ -35,9 +35,6 @@ import System.Info
 
 %default covering
 
-debug : Bool
-debug = True
-
 heXX : Int -> String
 heXX x = hd (x `div` 16) ++ hd (x `mod` 16)
   where
@@ -365,6 +362,9 @@ mlfSwitch scrut alts Nothing = parens $
   text "switch" <++> scrut
   $$ indent (if debug then (vcat alts $$ catchall) else vcat alts)
  where
+  debug : Bool
+  debug = True
+
   catchall : Doc
   catchall =
     mlfConDflt $
@@ -812,37 +812,35 @@ generateModules c tm bld = do
 
   pure $ moduleNames ++ [MkMI (MkMN "Main") True]
 
+firstAvailable : List String -> String -> Core (Maybe String)
+firstAvailable [] fname = pure Nothing
+firstAvailable (dir :: dirs) fname = do
+  let path = dir </> fname
+  case !(coreLift $ openFile path Read) of
+    Right f => do
+      coreLift $ closeFile f
+      pure (Just path)
+    Left _ => firstAvailable dirs fname
+
 compileExpr : Ref Ctxt Defs -> (tmpDir : String) -> (outputDir : String) ->
               ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileExpr c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "mlf-" ++ outfile
   coreLift $ mkdirAll bld
 
-  let copy = \fn => with Core.Core.(>>=) do
-       src <- readDataFile ("malfunction" </> fn)
-       coreLift $ writeFile (bld </> fn) src
+  -- we can't use readDataFile because many files are binary
+  dirs <- getDirs
+  let copy = \fn => firstAvailable dirs.lib_dirs fn >>= \case
+        Nothing => throw $ InternalError ("idris2-mlf/copy: could not find " ++ fn)
+        Just path => coreLift $ system $ unwords ["cp", path, bld]
 
-  -- TMP HACK
-  -- .a and .h files
-  coreLift $ system $ unwords
-    ["cp", "~/.idris2/idris2-0.2.1/support/c/*", bld]
-
-  copy "Rts.ml"
-  copy "rts.c"
   modules <- generateModules c tm bld
 
-  let flags = if debug then "-g" else ""
   let cmd = unwords
         [ "(cd " ++ bld
-        -- C, this is fast
-        , "&& cc -O2 " ++ flags ++ " -c rts.c -I $(ocamlc -where)"
-        -- Rts, thas is fast too
-        , "&& ocamlfind opt -I +threads " ++ flags ++ " -i Rts.ml > Rts.mli"
-        , "&& ocamlfind opt -I +threads " ++ flags ++ " -c Rts.mli"
-        , "&& ocamlfind opt -I +threads " ++ flags ++ " -c Rts.ml"
         -- rebuild only the outdated MLF modules
         , unwords
-          [    " && ocamlfind opt -I +threads " ++ flags ++ " -c " ++ mod.name.string ++ ".mli "
+          [    " && ocamlfind opt -I +threads -g -c " ++ mod.name.string ++ ".mli "
             ++ " && malfunction cmx " ++ mod.name.string ++ ".mlf"
             -- mark the module build as successful
             ++ " && mv " ++ mod.name.string ++ ".hash.tmp " ++ mod.name.string ++ ".hash"
@@ -850,13 +848,14 @@ compileExpr c tmpDir outputDir tm outfile = do
           , mod.outdated
           ]
         -- link it all together
-        , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink "
-            ++ flags ++ " rts.o libidris2_support.a Rts.cmx "
+        , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink -g "
+            ++ "rts.o libidris2_support.a Rts.cmx "
             ++ unwords [mod.name.string ++ ".cmx" | mod <- modules]
             ++ " -o ../" ++ outfile
         , ")"
         ]
-  -- coreLift $ putStrLn cmd
+
+  coreLift $ putStrLn cmd
   ok <- coreLift $ system cmd
   if ok == 0
     then pure (Just (outputDir </> outfile))
