@@ -35,6 +35,11 @@ import System.Info
 
 %default covering
 
+-- this will break if the same scheme foreign function is used to implement
+-- an operation on, say, different numeric types, as pointed out by @karroffel
+--
+-- let's go with this for now, though
+--
 emulatedForeigns : StringMap String
 emulatedForeigns = StringMap.fromList
   [ ("scheme:string-concat", "Rts.Bytes.concat")
