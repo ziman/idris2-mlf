@@ -1,4 +1,4 @@
-CC = cc -O2 -g -I $(LIBDIR)/support/c -I $(shell ocamlc -where)
+CC = cc -O2 -g -I $(LIBDIR)/include -I $(shell ocamlc -where)
 OCAMLOPT = ocamlfind opt -I +threads -g
 
 .PHONY: clean
