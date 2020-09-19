@@ -35,6 +35,24 @@ import System.Info
 
 %default covering
 
+emulatedForeigns : StringMap String
+emulatedForeigns = StringMap.fromList
+  [ ("scheme:string-concat", "Rts.Bytes.concat")
+  , ("scheme:blodwen-args",  "Rts.System.get_args")
+  , ("scheme:string-pack",   "Rts.String.pack")
+  , ("scheme:string-unpack", "Rts.String.unpack")
+  , ("scheme:read-char",     "Rts.String.read_char")
+  , ("scheme:blodwen-clock-time-gccpu", "Rts.System.clocktime_gc_cpu")
+  , ("scheme:blodwen-clock-time-gcreal", "Rts.System.clocktime_gc_real")
+  , ("scheme:blodwen-clock-time-monotonic", "Rts.System.clocktime_monotonic")
+  , ("scheme:blodwen-clock-time-process", "Rts.System.clocktime_process")
+  , ("scheme:blodwen-clock-time-thread", "Rts.System.clocktime_thread")
+  , ("scheme:blodwen-clock-time-utc", "Rts.System.clocktime_utc")
+  , ("scheme:blodwen-clock-second", "Rts.System.clock_second")
+  , ("scheme:blodwen-clock-nanosecond", "Rts.System.clock_nanosecond")
+  , ("scheme:blodwen-clock-is-time?", "Rts.System.clock_valid")
+  ]
+
 heXX : Int -> String
 heXX x = hd (x `div` 16) ++ hd (x `mod` 16)
   where
@@ -393,13 +411,16 @@ bindFieldProjs scrutN ns rhs = parens $
 ccLibFun : List String -> Maybe String
 ccLibFun [] = Nothing
 ccLibFun (cc :: ccs) =
-  if substr 0 3 cc == "ML:"
-    then Just (substr 3 (length cc) cc)
-    else if substr 0 2 cc == "C:"
-        then case split (== ',') (substr 2 (length cc) cc) of
-          [fn, libn] => Just ("Rts.C.Lib_" ++ rmSpaces libn ++ "." ++ fn)
-          _ => ccLibFun ccs  -- something strange -> skip
-        else ccLibFun ccs  -- search further
+  case StringMap.lookup cc emulatedForeigns of
+    Just result => Just result
+    Nothing =>
+      if substr 0 3 cc == "ML:"
+        then Just (substr 3 (length cc) cc)
+        else if substr 0 2 cc == "C:"
+            then case split (== ',') (substr 2 (length cc) cc) of
+              [fn, libn] => Just ("Rts.C.Lib_" ++ rmSpaces libn ++ "." ++ fn)
+              _ => ccLibFun ccs  -- something strange -> skip
+            else ccLibFun ccs  -- search further
   where
     rmSpaces : String -> String
     rmSpaces = pack . filter (/= ' ') . unpack
