@@ -1,0 +1,6 @@
+package idris2-mlf-mlf
+depends = idris2, prelude, base, contrib, network
+sourcedir = "src"
+main = Main
+options = "--codegen mlf"
+executable = idris2-mlf-mlf

@@ -869,7 +869,6 @@ compileExpr c tmpDir outputDir tm outfile = do
   copy dirs bld ("mlf" </> "Rts.cmi")
   copy dirs bld ("mlf" </> "Rts.o")
   copy dirs bld ("mlf" </> "rts.o")
-  copy dirs bld ( "c"  </> "libidris2_support.a")
 
   modules <- generateModules c tm bld
 
@@ -886,7 +885,9 @@ compileExpr c tmpDir outputDir tm outfile = do
           ]
         -- link it all together
         , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink -g "
-            ++ "rts.o libidris2_support.a Rts.cmx "
+            ++ "rts.o "
+            ++ !(findLibraryFile "libidris2_support.a") ++ " "
+            ++ "Rts.cmx "
             ++ unwords [mod.name.string ++ ".cmx" | mod <- modules]
             ++ " -o ../" ++ outfile
         , ")"
