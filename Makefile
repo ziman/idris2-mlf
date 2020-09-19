@@ -19,7 +19,7 @@ install-support: support/.ts-build
 	# install the support code
 	mkdir -p $(LIBDIR)/support/mlf
 	install support/rts.o $(LIBDIR)/support/mlf
-	install support/Rts.{cmi,cmx} $(LIBDIR)/support/mlf
+	install support/Rts.{o,cmi,cmx} $(LIBDIR)/support/mlf
 
 clean:
 	make -C support clean

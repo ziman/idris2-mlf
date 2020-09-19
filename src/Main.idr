@@ -822,17 +822,28 @@ firstAvailable (dir :: dirs) fname = do
       pure (Just path)
     Left _ => firstAvailable dirs fname
 
+copy : Dirs -> String -> String -> Core ()
+copy dirs bld fn =
+  firstAvailable dirs.data_dirs fn >>= \case
+    Nothing => throw $ InternalError ("idris2-mlf/copy: could not find " ++ fn)
+    Just path => do
+      coreLift $ system $ unwords ["cp", path, bld]
+      pure ()
+
 compileExpr : Ref Ctxt Defs -> (tmpDir : String) -> (outputDir : String) ->
               ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileExpr c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "mlf-" ++ outfile
   coreLift $ mkdirAll bld
 
-  -- we can't use readDataFile because many files are binary
+  -- malfunction does not support libs in another directory
+  -- let's just copy all of them
   dirs <- getDirs
-  let copy = \fn => firstAvailable dirs.lib_dirs fn >>= \case
-        Nothing => throw $ InternalError ("idris2-mlf/copy: could not find " ++ fn)
-        Just path => coreLift $ system $ unwords ["cp", path, bld]
+  copy dirs bld ("mlf" </> "Rts.cmx")
+  copy dirs bld ("mlf" </> "Rts.cmi")
+  copy dirs bld ("mlf" </> "Rts.o")
+  copy dirs bld ("mlf" </> "rts.o")
+  copy dirs bld ( "c"  </> "libidris2_support.a")
 
   modules <- generateModules c tm bld
 

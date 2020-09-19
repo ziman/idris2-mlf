@@ -5,7 +5,7 @@ OCAMLOPT = ocamlfind opt -I +threads -g
 
 all: .ts-build
 
-.ts-build: rts.o Rts.cmi Rts.cmx
+.ts-build: rts.o Rts.o Rts.cmi Rts.cmx
 	touch .ts-build
 
 rts.o: rts.c
@@ -17,7 +17,7 @@ Rts.mli: Rts.ml
 Rts.cmi: Rts.mli
 	$(OCAMLOPT) -c Rts.mli
 
-Rts.cmx: Rts.ml
+Rts.cmx Rts.o: Rts.ml
 	$(OCAMLOPT) -c Rts.ml
 
 clean:
