@@ -209,7 +209,7 @@ static inline void utf8_write(uint8_t * buf, size_t cp_width, uint32_t cp)
 	}
 }
 
-CAMLprim value ml_string_readChar(value ofs, value src)
+CAMLprim value ml_string_read_char(value ofs, value src)
 {
 	CAMLparam2(ofs, src);
 	CAMLlocal1(result);

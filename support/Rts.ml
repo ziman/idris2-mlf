@@ -80,7 +80,7 @@ module String = struct
     external pack : char idris_list -> string = "ml_string_pack"
 
     type char_result
-    external readChar : int -> string -> char_result = "ml_string_readChar"
+    external read_char : int -> string -> char_result = "ml_string_read_char"
 
     let of_char (c : char) : string = String.make 1 c
 end
