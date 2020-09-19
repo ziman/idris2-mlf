@@ -53,9 +53,9 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:blodwen-clock-time-process", "Rts.System.clocktime_process")
   , ("scheme:blodwen-clock-time-thread", "Rts.System.clocktime_thread")
   , ("scheme:blodwen-clock-time-utc", "Rts.System.clocktime_utc")
-  , ("scheme:blodwen-clock-second", "Rts.System.clock_second")
-  , ("scheme:blodwen-clock-nanosecond", "Rts.System.clock_nanosecond")
-  , ("scheme:blodwen-clock-is-time?", "Rts.System.clock_valid")
+  , ("scheme:blodwen-clock-second", "Rts.System.os_clock_second")
+  , ("scheme:blodwen-clock-nanosecond", "Rts.System.os_clock_nanosecond")
+  , ("scheme:blodwen-clock-is-time?", "Rts.System.os_clock_valid")
   ]
 
 heXX : Int -> String
