@@ -2,13 +2,19 @@ IDRIS2 ?= idris2
 PREFIX ?= $(shell $(IDRIS2) --prefix)
 export LIBDIR ?= $(shell $(IDRIS2) --libdir)
 
-.PHONY: all clean build install self
+.PHONY: all clean build install self fast
 
 all: build
 
 build: build/exec/idris2-mlf support/.ts-build
 
 self: build/exec/idris2-mlf-mlf
+
+fast: build/exec/idris2-mlf-fast
+
+build/exec/idris2-mlf-fast: src/*.idr
+	build/exec/idris2-mlf --build idris2-mlf-mlf.ipkg
+	cp build/exec/idris2-mlf-mlf build/exec/idris2-mlf-fast
 
 build/exec/idris2-mlf-mlf: src/*.idr build/exec/idris2-mlf install-support
 	build/exec/idris2-mlf --build idris2-mlf-mlf.ipkg
