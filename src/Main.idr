@@ -60,7 +60,8 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:blodwen-clock-nanosecond", "Rts.System.os_clock_nanosecond")
   , ("scheme:blodwen-is-time?", "Rts.System.os_clock_valid")
 
-  -- chez refuses to use native C functions for buffers
+  -- chez refuses to use foreign C functions for buffers
+  -- probably as a reminder that the backend-specific versions will be faster
   , ("scheme:blodwen-new-buffer", "Rts.C.Lib_libidris2_support.idris2_newBuffer")
   , ("scheme:blodwen-buffer-size", "Rts.C.Lib_libidris2_support.idris2_getBufferSize")
   , ("scheme:blodwen-buffer-copydata", "Rts.C.Lib_libidris2_support.idris2_copyBuffer")

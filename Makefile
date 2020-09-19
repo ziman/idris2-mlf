@@ -20,11 +20,15 @@ build/exec/idris2-mlf: src/*.idr
 support/.ts-build:
 	make -C support
 
+# install a self-compiled, statically linked version
+install: build/exec/idris2-mlf-mlf
+	install -m 755 build/exec/idris2-mlf-mlf $(PREFIX)/bin/idris2-mlf
+
 install-support: support/.ts-build
 	# install the support code
 	mkdir -p $(LIBDIR)/support/mlf
-	install support/rts.o $(LIBDIR)/support/mlf
-	install support/Rts.{o,cmi,cmx} $(LIBDIR)/support/mlf
+	install -m 644 support/rts.o $(LIBDIR)/support/mlf
+	install -m 644 support/Rts.{o,cmi,cmx} $(LIBDIR)/support/mlf
 
 clean:
 	make -C support clean
