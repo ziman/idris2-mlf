@@ -728,9 +728,9 @@ record ModuleInfo where
   name : ModuleName
   outdated : Bool
 
-generateModules : Ref Ctxt Defs ->
-               ClosedTerm -> (outfile : String) -> Core (List ModuleInfo)
-generateModules c tm bld = do
+generateModules : CGMode -> Ref Ctxt Defs
+  -> ClosedTerm -> (outfile : String) -> Core (List ModuleInfo)
+generateModules cgm c tm bld = do
   cdata <- getCompileData Cases tm
   let ndefs = namedDefs cdata
   let ctm = forget (mainExpr cdata)
@@ -892,7 +892,7 @@ compileExpr cgm c tmpDir outputDir tm outfile = do
   copy dirs bld ("mlf" </> "Rts.o")
   copy dirs bld ("mlf" </> "rts.o")
 
-  modules <- generateModules c tm bld
+  modules <- generateModules cgm c tm bld
 
   let cmd = unwords
         [ "(cd " ++ bld
