@@ -12,8 +12,14 @@ all: build
 
 build: build/exec/idris2-mlf support/.ts-build
 
-bootstrap:
+build/exec/idris2-mlf-bootstrap: src/*.idr
 	$(IDRIS2) --build idris2-mlf-bootstrap.ipkg
+
+bootstrap: build/exec/idris2-mlf-bootstrap install-support
+	build/exec/idris2-mlf-bootstrap --build idris2-mlf.ipkg
+	make install
+
+rebootstrap: install-support  # do not rebuild the bootstrap compiler
 	build/exec/idris2-mlf-bootstrap --build idris2-mlf.ipkg
 	make install
 

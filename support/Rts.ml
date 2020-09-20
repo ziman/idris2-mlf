@@ -82,9 +82,13 @@ module String = struct
     let of_char (c : char) : string = String.make 1 c
 
     module Iterator = struct
-            type t
+            type t = int  (* byte offset in the UTF-8 string *)
+            type next_result =
+                | EOF                    (* int 0 *)
+                | UNUSED of int          (* block, tag 0 *)
+                | Character of char * t  (* block, tag 1 *)
             external new_ : string -> t = "ml_string_iterator_new"
-            external next : t -> (char * t) option = "ml_string_iterator_next"
+            external next : string -> t -> next_result = "ml_string_iterator_next"
     end
 end
 
