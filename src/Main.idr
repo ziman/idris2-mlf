@@ -47,7 +47,6 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:blodwen-args",  "Rts.System.get_args")
   , ("scheme:string-pack",   "Rts.String.pack")
   , ("scheme:string-unpack", "Rts.String.unpack")
-  , ("scheme:read-string-char", "Rts.String.read_char")
   , ("scheme:blodwen-string-iterator-new",  "Rts.String.Iterator.new_")
   , ("scheme:blodwen-string-iterator-next", "Rts.String.Iterator.next")
 
