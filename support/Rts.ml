@@ -79,9 +79,6 @@ module String = struct
     external unpack : string -> char idris_list = "ml_string_unpack"
     external pack : char idris_list -> string = "ml_string_pack"
 
-    type char_result
-    external read_char : int -> string -> char_result = "ml_string_read_char"
-
     let of_char (c : char) : string = String.make 1 c
 
     module Iterator = struct
