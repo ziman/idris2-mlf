@@ -83,6 +83,12 @@ module String = struct
     external read_char : int -> string -> char_result = "ml_string_read_char"
 
     let of_char (c : char) : string = String.make 1 c
+
+    module Iterator = struct
+            type t
+            external new_ : string -> t = "ml_string_iterator_new"
+            external next : t -> (char * t) option = "ml_string_iterator_next"
+    end
 end
 
 module Bytes = struct

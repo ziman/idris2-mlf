@@ -35,6 +35,8 @@ import System.Info
 
 %default covering
 
+data CGMode = Incremental | Full
+
 -- this will break if the same scheme foreign function is used to implement
 -- an operation on, say, different numeric types, as pointed out by @karroffel
 --
@@ -48,6 +50,8 @@ emulatedForeigns = StringMap.fromList
   , ("scheme:string-pack",   "Rts.String.pack")
   , ("scheme:string-unpack", "Rts.String.unpack")
   , ("scheme:read-string-char", "Rts.String.read_char")
+  , ("scheme:blodwen-string-iterator-new",  "Rts.String.Iterator.new_")
+  , ("scheme:blodwen-string-iterator-next", "Rts.String.Iterator.next")
 
   -- clock
   , ("scheme:blodwen-clock-time-gccpu", "Rts.System.clocktime_gc_cpu")
@@ -873,9 +877,10 @@ copy dirs bld fn =
       coreLift $ system $ unwords ["cp", path, bld]
       pure ()
 
-compileExpr : Ref Ctxt Defs -> (tmpDir : String) -> (outputDir : String) ->
-              ClosedTerm -> (outfile : String) -> Core (Maybe String)
-compileExpr c tmpDir outputDir tm outfile = do
+compileExpr : CGMode -> Ref Ctxt Defs
+  -> (tmpDir : String) -> (outputDir : String)
+  -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
+compileExpr cgm c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "mlf-" ++ outfile
   coreLift $ mkdirAll bld
 
@@ -916,13 +921,16 @@ compileExpr c tmpDir outputDir tm outfile = do
     then pure (Just (outputDir </> outfile))
     else pure Nothing
 
-executeExpr : Ref Ctxt Defs -> (tmpDir : String) -> ClosedTerm -> Core ()
-executeExpr c tmpDir tm
-    = do outn <- compileExpr c tmpDir tmpDir tm "_tmp_mlf"
+executeExpr : CGMode -> Ref Ctxt Defs -> (tmpDir : String) -> ClosedTerm -> Core ()
+executeExpr cgm c tmpDir tm
+    = do outn <- compileExpr cgm c tmpDir tmpDir tm "_tmp_mlf"
          case outn of
               -- TODO: on windows, should add exe extension
               Just outn => map (const ()) $ coreLift $ system outn
               Nothing => pure ()
 
 main : IO ()
-main = mainWithCodegens [("mlf", MkCG compileExpr executeExpr)]
+main = mainWithCodegens
+  [ ("mlf", MkCG (compileExpr Full) (executeExpr Full))
+  , ("mlf-incremental", MkCG (compileExpr Incremental) (executeExpr Incremental))
+  ]

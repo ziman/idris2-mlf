@@ -209,24 +209,31 @@ static inline void utf8_write(uint8_t * buf, size_t cp_width, uint32_t cp)
 	}
 }
 
-CAMLprim value ml_string_read_char(value ofs, value src)
+CAMLprim value ml_string_iterator_new(value str)
 {
-	CAMLparam2(ofs, src);
+	CAMLparam1(str);
+	CAMLreturn(Val_int(0));
+}
+
+CAMLprim value ml_string_iterator_next(value str, value ofsv)
+{
+	CAMLparam2(str, ofsv);
 	CAMLlocal1(result);
 
+	size_t ofs = Int_val(ofsv);
 	uint32_t cp;
 	const size_t cp_width = utf8_read(
-		Bytes_val(src) + Int_val(ofs),
-		caml_string_length(src) - Int_val(ofs),
+		Bytes_val(str) + ofs,
+		caml_string_length(str) - ofs,
 		&cp
 	);
 
 	if (cp_width == 0) {
 		result = Val_int(0);  // EOF, int 0
 	} else {
-		result = caml_alloc(2, 1);  // Character, block tag 1
+		result = caml_alloc(2, 1);  // Character Char Offset, block tag 1
 		Store_field(result, 0, Val_int(cp));
-		Store_field(result, 1, Val_int(cp_width));
+		Store_field(result, 1, Val_int(ofs + cp_width));
 	}
 
 	CAMLreturn(result);

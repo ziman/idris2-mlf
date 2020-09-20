@@ -30,6 +30,15 @@ In the root directory of `idris2-mlf`, run `make install`.
 This will build `idris2-mlf-mlf` using `--codegen mlf` to obtain a statically
 linked native binary that will be installed in `${IDRIS_PREFIX}/bin`.
 
+## Usage
+
+* `idris2-mlf --codegen mlf` builds the whole project with inter-module optimisations.
+  If a module is changed, all its dependencies have to be rebuilt, even if its
+  interface stays the same.
+
+* `idris2-mlf --codegen mlf-incremental` uses `ocamlopt -opaque` to avoid
+  rebuilding dependencies of a module if its interface did not change.
+
 ## License
 
 [BSD-3](https://github.com/ziman/idris2-mlf/blob/master/LICENSE),
