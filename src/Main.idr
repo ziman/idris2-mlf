@@ -35,8 +35,6 @@ import System.Info
 
 %default covering
 
-data CGMode = Incremental | Full
-
 -- this will break if the same scheme foreign function is used to implement
 -- an operation on, say, different numeric types, as pointed out by @karroffel
 --
@@ -728,9 +726,8 @@ record ModuleInfo where
   name : ModuleName
   outdated : Bool
 
-generateModules : CGMode -> Ref Ctxt Defs
-  -> ClosedTerm -> (outfile : String) -> Core (List ModuleInfo)
-generateModules cgm c tm bld = do
+generateModules : Ref Ctxt Defs -> ClosedTerm -> (outfile : String) -> Core (List ModuleInfo)
+generateModules c tm bld = do
   cdata <- getCompileData Cases tm
   let ndefs = namedDefs cdata
   let ctm = forget (mainExpr cdata)
@@ -819,8 +816,6 @@ generateModules cgm c tm bld = do
           Right () <- coreLift $ writeFile fname codeHashStr
             | Left err => throw (FileErr fname err)
 
-          -- TODO: restore the .cmi file if the MLI file has not changed
-
           -- write the MLI file
           let mliCode = render " " $
                 vcat
@@ -877,10 +872,10 @@ copy dirs bld fn =
       coreLift $ system $ unwords ["cp", path, bld]
       pure ()
 
-compileExpr : CGMode -> Ref Ctxt Defs
+compileExpr : Ref Ctxt Defs
   -> (tmpDir : String) -> (outputDir : String)
   -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
-compileExpr cgm c tmpDir outputDir tm outfile = do
+compileExpr c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "mlf-" ++ outfile
   coreLift $ mkdirAll bld
 
@@ -892,7 +887,7 @@ compileExpr cgm c tmpDir outputDir tm outfile = do
   copy dirs bld ("mlf" </> "Rts.o")
   copy dirs bld ("mlf" </> "rts.o")
 
-  modules <- generateModules cgm c tm bld
+  modules <- generateModules c tm bld
 
   let cmd = unwords
         [ "(cd " ++ bld
@@ -921,9 +916,9 @@ compileExpr cgm c tmpDir outputDir tm outfile = do
     then pure (Just (outputDir </> outfile))
     else pure Nothing
 
-executeExpr : CGMode -> Ref Ctxt Defs -> (tmpDir : String) -> ClosedTerm -> Core ()
-executeExpr cgm c tmpDir tm
-    = do outn <- compileExpr cgm c tmpDir tmpDir tm "_tmp_mlf"
+executeExpr : Ref Ctxt Defs -> (tmpDir : String) -> ClosedTerm -> Core ()
+executeExpr c tmpDir tm
+    = do outn <- compileExpr c tmpDir tmpDir tm "_tmp_mlf"
          case outn of
               -- TODO: on windows, should add exe extension
               Just outn => map (const ()) $ coreLift $ system outn
@@ -931,6 +926,5 @@ executeExpr cgm c tmpDir tm
 
 main : IO ()
 main = mainWithCodegens
-  [ ("mlf", MkCG (compileExpr Full) (executeExpr Full))
-  , ("mlf-incremental", MkCG (compileExpr Incremental) (executeExpr Incremental))
+  [ ("mlf", MkCG compileExpr executeExpr)
   ]
