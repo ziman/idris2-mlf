@@ -112,7 +112,7 @@ mlfGlobal mlName = parens $
   text "global"
     <++> hsep
       [ text ("$" ++ n)
-      | n <- Data.List1.toList $ split (== '.') mlName
+      | n <- toList $ split (== '.') mlName
       ]
 
 mlfApply : Doc -> List Doc -> Doc
@@ -441,7 +441,7 @@ ccLibFun (cc :: ccs) =
         then Just (substr 3 (length cc) cc)
         else if substr 0 2 cc == "C:"
             then case split (== ',') (substr 2 (length cc) cc) of
-              [fn, libn] => Just ("Rts.C.Lib_" ++ rmSpaces libn ++ "." ++ fn)
+              fn ::: [libn] => Just ("Rts.C.Lib_" ++ rmSpaces libn ++ "." ++ fn)
               _ => ccLibFun ccs  -- something strange -> skip
             else ccLibFun ccs  -- search further
   where
@@ -506,8 +506,8 @@ parameters (ldefs : SortedSet Name, nsMapping : StringMap ModuleName, curModuleN
       )
 
     mlfConAlt : Name -> NamedConAlt -> Doc
-    mlfConAlt scrutN (MkNConAlt n Nothing args rhs) =
-      mlfError $ "no tag for mlfConAlt: " ++ show n
+    mlfConAlt scrutN (MkNConAlt cn Nothing args rhs) =
+      mlfError $ "no tag for mlfConAlt: " ++ show cn
     mlfConAlt scrutN (MkNConAlt cn (Just tag) [] rhs) =
       -- nullary constructors compile to ints in ocaml
       sexp [show tag, mlfTm rhs]
@@ -889,7 +889,7 @@ compileExpr c tmpDir outputDir tm outfile = do
   modules <- generateModules c tm bld
 
   let cmd = unwords
-        [ "(cd " ++ bld
+        [ " (cd " ++ bld
         -- rebuild only the outdated MLF modules
         , unwords
           [    " && ocamlfind opt -I +threads -g -c " ++ mod.name.string ++ ".mli "
