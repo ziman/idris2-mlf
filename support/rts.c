@@ -1135,22 +1135,22 @@ CAMLprim value ml_idrnet_geteagain() {
 
 CAMLprim value ml_idrnet_af_unspec(value world) {
 	CAMLparam1(world);
-	CAMLreturn(Val_int(idrnet_af_unspec());
+	CAMLreturn(Val_int(idrnet_af_unspec()));
 }
 
 CAMLprim value ml_idrnet_af_unix(value world) {
 	CAMLparam1(world);
-	CAMLreturn(Val_int(idrnet_af_unix());
+	CAMLreturn(Val_int(idrnet_af_unix()));
 }
 
 CAMLprim value ml_idrnet_af_inet(value world) {
 	CAMLparam1(world);
-	CAMLreturn(Val_int(idrnet_af_inet());
+	CAMLreturn(Val_int(idrnet_af_inet()));
 }
 
 CAMLprim value ml_idrnet_af_inet6(value world) {
 	CAMLparam1(world);
-	CAMLreturn(Val_int(idrnet_af_inet6());
+	CAMLreturn(Val_int(idrnet_af_inet6()));
 }
 
 CAMLprim value ml_idris2_listen(value socket, value backlog) {
