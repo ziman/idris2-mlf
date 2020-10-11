@@ -238,7 +238,7 @@ module C = struct
 
         external idrnet_geteagain : world -> int = "ml_idrnet_geteagain"
 
-        external idrnet_af_unspec : world -> int = "ml_idrnet_af_inspec"
+        external idrnet_af_unspec : world -> int = "ml_idrnet_af_unspec"
         external idrnet_af_unix : world -> int = "ml_idrnet_af_unix"
         external idrnet_af_inet : world -> int = "ml_idrnet_af_inet"
         external idrnet_af_inet6 : world -> int = "ml_idrnet_af_inet6"
