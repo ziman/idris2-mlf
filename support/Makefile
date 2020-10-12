@@ -6,10 +6,10 @@ OCAMLOPT = ocamlfind opt -I +threads -g
 all: .ts-build
 
 # order matters; Rts.cmi should be built before Rts.o and Rts.cmx
-.ts-build: rts.o Rts.cmi Rts.o Rts.cmx
+.ts-build: rts_c.o Rts.cmi Rts.o Rts.cmx
 	touch .ts-build
 
-rts.o: rts.c
+rts_c.o: rts_c.c
 	$(CC) -o $@ -c $<
 
 Rts.mli: Rts.ml
@@ -22,4 +22,4 @@ Rts.cmx Rts.o: Rts.ml
 	$(OCAMLOPT) -c Rts.ml
 
 clean:
-	-rm -f Rts.{mli,cmi,cmx} rts.o
+	-rm -f Rts.{mli,cmi,cmx} rts_c.o

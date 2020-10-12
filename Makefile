@@ -38,7 +38,7 @@ install: build install-support
 install-support: support/.ts-build
 	# install the support code
 	mkdir -p $(LIBDIR)/support/mlf
-	install -m 644 support/rts.o           $(LIBDIR)/support/mlf
+	install -m 644 support/rts_c.o         $(LIBDIR)/support/mlf
 	install -m 644 support/Rts.{o,cmi,cmx} $(LIBDIR)/support/mlf
 
 clean:
