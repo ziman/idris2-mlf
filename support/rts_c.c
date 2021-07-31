@@ -955,13 +955,13 @@ CAMLprim value ml_idris2_getBufferString(value src, value ofs, value max_width) 
 
 CAMLprim value ml_idrnet_malloc(value size) {
   CAMLparam1(size);
-  void * result = idrnet_malloc(Val_int(size));
+  void * result = idris2_malloc(Val_int(size));
   CAMLreturn((value) result);
 }
 
 CAMLprim value ml_idrnet_free(value buffer) {
   CAMLparam1(buffer);
-  idrnet_free((void *) buffer);
+  idris2_free((void *) buffer);
   CAMLreturn(Val_int(0));
 }
 
