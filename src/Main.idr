@@ -354,6 +354,11 @@ mlfConstant (Db x) =
     [] => Pretty.show x <+> text ".0"
     _  => Pretty.show x
 
+mlfConstant (I8 x) = mlfError $ "I8: " ++ show x
+mlfConstant (I16 x) = mlfError $ "I16: " ++ show x
+mlfConstant (I32 x) = mlfError $ "I32: " ++ show x
+mlfConstant (I64 x) = mlfError $ "I64: " ++ show x
+
 mlfConstant (B8 x) = mlfError $ "B8: " ++ show x
 mlfConstant (B16 x) = mlfError $ "B16: " ++ show x
 mlfConstant (B32 x) = mlfError $ "B32: " ++ show x
@@ -371,6 +376,10 @@ mlfConstant Bits8Type = show 6
 mlfConstant Bits16Type = show 7
 mlfConstant Bits32Type = show 8
 mlfConstant Bits64Type = show 9
+mlfConstant Int8Type = show 10
+mlfConstant Int16Type = show 11
+mlfConstant Int32Type = show 12
+mlfConstant Int64Type = show 13
 
 mlfConstPat : Constant -> Maybe Doc
 -- malfunction cannot switch on these
@@ -462,9 +471,9 @@ mutual
   nsTm (NmLam fc n rhs) = nsTm rhs
   nsTm (NmLet fc n val rhs) = nsTm val <+> nsTm rhs
   nsTm (NmApp fc f args) = nsTm f <+> concatMap nsTm args
-  nsTm (NmCon fc cn tag args) = concatMap nsTm args
-  nsTm (NmForce fc rhs) = nsTm rhs
-  nsTm (NmDelay fc rhs) = nsTm rhs
+  nsTm (NmCon fc cn ci tag args) = concatMap nsTm args
+  nsTm (NmForce fc lr rhs) = nsTm rhs
+  nsTm (NmDelay fc lr rhs) = nsTm rhs
   nsTm (NmErased fc) = SortedSet.empty
   nsTm (NmPrimVal ft x) = SortedSet.empty
   nsTm (NmOp fc op args) = concatMap nsTm args
@@ -476,7 +485,7 @@ mutual
   nsTm (NmCrash fc msg) = SortedSet.empty
 
   nsConAlt : NamedConAlt -> SortedSet String
-  nsConAlt (MkNConAlt n tag args rhs) = nsTm rhs
+  nsConAlt (MkNConAlt n ci tag args rhs) = nsTm rhs
 
   nsConstAlt : NamedConstAlt -> SortedSet String
   nsConstAlt (MkNConstAlt c rhs) = nsTm rhs
@@ -506,12 +515,12 @@ parameters (ldefs : SortedSet Name, nsMapping : StringMap ModuleName, curModuleN
       )
 
     mlfConAlt : Name -> NamedConAlt -> Doc
-    mlfConAlt scrutN (MkNConAlt cn Nothing args rhs) =
+    mlfConAlt scrutN (MkNConAlt cn ci Nothing args rhs) =
       mlfError $ "no tag for mlfConAlt: " ++ show cn
-    mlfConAlt scrutN (MkNConAlt cn (Just tag) [] rhs) =
+    mlfConAlt scrutN (MkNConAlt cn ci (Just tag) [] rhs) =
       -- nullary constructors compile to ints in ocaml
       sexp [show tag, mlfTm rhs]
-    mlfConAlt scrutN (MkNConAlt cn (Just tag) args rhs) = parens $
+    mlfConAlt scrutN (MkNConAlt cn ci (Just tag) args rhs) = parens $
       sexp [text "tag", show tag]
       $$ indent (bindFieldProjs scrutN args $ mlfTm rhs)
 
@@ -535,12 +544,12 @@ parameters (ldefs : SortedSet Name, nsMapping : StringMap ModuleName, curModuleN
       let (f', args') = unApp f args
         in mlfApply (mlfTm f') (map mlfTm args')
       -}
-    mlfTm (NmCon fc cn Nothing []) = mlfString (show cn)  -- type constructor
-    mlfTm (NmCon fc cn (Just tag) []) = show tag
-    mlfTm (NmCon fc cn mbTag args) = mlfBlock mbTag (map mlfTm args)
+    mlfTm (NmCon fc cn ci Nothing []) = mlfString (show cn)  -- type constructor
+    mlfTm (NmCon fc cn ci (Just tag) []) = show tag
+    mlfTm (NmCon fc cn ci mbTag args) = mlfBlock mbTag (map mlfTm args)
     mlfTm (NmCrash fc msg) = mlfError msg
-    mlfTm (NmForce fc rhs) = mlfForce (mlfTm rhs)
-    mlfTm (NmDelay fc rhs) = mlfLazy (mlfTm rhs)
+    mlfTm (NmForce fc lr rhs) = mlfForce (mlfTm rhs)
+    mlfTm (NmDelay fc lr rhs) = mlfLazy (mlfTm rhs)
     mlfTm (NmErased fc) = mlfString "erased"
     mlfTm (NmPrimVal ft x) = mlfConstant x
     mlfTm (NmOp fc op args) = mlfOp op (map mlfTm args)
@@ -727,7 +736,7 @@ record ModuleInfo where
 
 generateModules : Ref Ctxt Defs -> ClosedTerm -> (outfile : String) -> Core (List ModuleInfo)
 generateModules c tm bld = do
-  cdata <- getCompileData Cases tm
+  cdata <- getCompileData False Cases tm
   let ndefs = namedDefs cdata
   let ctm = forget (mainExpr cdata)
   let ldefs = lazyDefs ndefs
@@ -792,7 +801,7 @@ generateModules c tm bld = do
           (mbPrevHash == Just codeHashStr)
           -- no deps are outdated
           -- we check only direct deps because we're traversing in dep order, anyway
-          && (SortedSet.null $ SortedSet.intersection allDeps outdatedMNs)
+          && (null $ SortedSet.intersection allDeps outdatedMNs)
 
       if isUpToDate
         then pure (MkMI mlModName False)  -- up to date, nothing to do
@@ -868,7 +877,8 @@ copy dirs bld fn =
   firstAvailable dirs.data_dirs fn >>= \case
     Nothing => throw $ InternalError ("idris2-mlf/copy: could not find " ++ fn)
     Just path => do
-      coreLift $ system $ unwords ["cp", path, bld]
+      0 <- coreLift $ system $ unwords ["cp", path, bld]
+        | e => throw (FileErr path (GenericFileError 0))
       pure ()
 
 compileExpr : Ref Ctxt Defs
@@ -876,7 +886,8 @@ compileExpr : Ref Ctxt Defs
   -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileExpr c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "mlf-" ++ outfile
-  coreLift $ mkdirAll bld
+  Right () <- coreLift $ mkdirAll bld
+    | Left err => throw (FileErr bld err)
 
   -- malfunction does not support libs in another directory
   -- let's just copy all of them
@@ -925,5 +936,5 @@ executeExpr c tmpDir tm
 
 main : IO ()
 main = mainWithCodegens
-  [ ("mlf", MkCG compileExpr executeExpr)
+  [ ("mlf", MkCG compileExpr executeExpr Nothing Nothing)
   ]
