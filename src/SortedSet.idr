@@ -32,7 +32,9 @@ toList (SetWrapper m) = map (\(i, _) => i) (SortedMap.toList m)
 
 export
 Foldable SortedSet where
-  foldr f e xs = foldr f e (SortedSet.toList xs)
+  foldr f e = foldr f e . SortedSet.toList
+  foldl f e = foldl f e . SortedSet.toList
+  null (SetWrapper m) = null m
 
 ||| Set union. Inserts all elements of x into y
 export
@@ -69,7 +71,3 @@ keySet = SetWrapper . map (const ())
 export
 singleton : Ord k => k -> SortedSet k
 singleton k = insert k empty
-
-export
-null : SortedSet k -> Bool
-null (SetWrapper m) = SortedMap.null m

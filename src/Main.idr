@@ -18,15 +18,15 @@ import Core.Name
 import Core.Name.Namespace
 import Core.Options
 import Core.TT
-import Utils.Hex
-import Utils.Path
+import Libraries.Utils.Hex
+import Libraries.Utils.Path
 
 import Data.List
 import Data.List1
 import Data.Maybe
-import Data.NameMap
-import Data.Strings
+import Data.String
 import Data.Vect
+import Libraries.Data.NameMap
 
 import System
 import System.Directory
@@ -211,7 +211,7 @@ mlfBlock (Just tag) args = parens $
 mlfCmp : String -> String -> String -> List Doc -> Doc
 mlfCmp conv cmp zero args = sexp [text cmp, mlfLibCall conv args, text zero]
 
-mlfOp : PrimFn arity -> Vect arity Doc -> Doc
+mlfOp : PrimFn arr -> Vect arr Doc -> Doc
 mlfOp (Add IntType) [x,y] = sexp [text "+.int", x,y]
 mlfOp (Sub IntType) [x,y] = sexp [text "-.int", x,y]
 mlfOp (Mul IntType) [x,y] = sexp [text "*.int", x,y]

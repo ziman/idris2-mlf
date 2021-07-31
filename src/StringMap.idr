@@ -302,7 +302,7 @@ adjust k f m =
 
 export
 Show v => Show (StringMap v) where
-  show m = show $ map {b=String} (\(k,v) => k ++ "->" ++ show v) $ toList m
+  show m = show $ map {b=String} (\(k,v) => k ++ "->" ++ show v) $ StringMap.toList m
 
 -- TODO: is this the right variant of merge to use for this? I think it is, but
 -- I could also see the advantages of using `mergeLeft`. The current approach is

@@ -1,7 +1,7 @@
 module Pretty
 
 import Data.List
-import Data.Strings
+import Data.String
 
 %default total
 
