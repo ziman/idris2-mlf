@@ -15,7 +15,7 @@
 
 // idris2 libraries
 #include "getline.h"
-#include "idris_buffer.h"
+#include "idris_memory.h"
 #include "idris_directory.h"
 #include "idris_file.h"
 #include "idris_net.h"
