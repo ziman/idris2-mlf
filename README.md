@@ -7,8 +7,7 @@ for [Idris 2](https://github.com/idris-lang/Idris2).
 
 ### Install Idris2 API
 
-Get an `idris2` checkout that contains
-[this patch](https://github.com/idris-lang/Idris2/pull/683).
+Get an `idris2` checkout.
 In its root directory, run `make install-api`.
 
 ### Install Malfunction
