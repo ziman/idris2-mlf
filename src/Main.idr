@@ -318,30 +318,34 @@ mlfOp BelieveMe [_, _, x] = x
 
 mlfOp op args = mlfError $ "unimplemented primop: " ++ show op
 
+private
+un : String -> Name
+un = UN . Basic
+
 mlfExtPrim : Name -> Doc
-mlfExtPrim (NS _ (UN "prim__newArray")) =
-  mlfLam [UN "_ty", UN "n", UN "x", UN "_world"] $
-    sexp [text "makevec", mlfLocalVar (UN "n"), mlfLocalVar (UN "x")]
-mlfExtPrim (NS _ (UN "prim__arrayGet")) =
-  mlfLam [UN "_ty", UN "arr", UN "i", UN "_world"] $
-    sexp [text "load", mlfLocalVar (UN "arr"), mlfLocalVar (UN "i")]
-mlfExtPrim (NS _ (UN "prim__arraySet")) =
-  mlfLam [UN "_ty", UN "arr", UN "i", UN "x", UN "_world"] $
-    sexp [text "store", mlfLocalVar (UN "arr"), mlfLocalVar (UN "i"), mlfLocalVar (UN "x")]
-mlfExtPrim (NS _ (UN "prim__newIORef")) =
-  mlfLam [UN "_ty", UN "x", UN "_world"] $
-    sexp [text "makevec", show 1, mlfLocalVar (UN "x")]
-mlfExtPrim (NS _ (UN "prim__readIORef")) =
-  mlfLam [UN "_ty", UN "ref", UN "_world"] $
-    sexp [text "load", mlfLocalVar (UN "ref"), show 0]
-mlfExtPrim (NS _ (UN "prim__writeIORef")) =
-  mlfLam [UN "_ty", UN "ref", UN "x", UN "_world"] $
-    sexp [text "store", mlfLocalVar (UN "ref"), show 0, mlfLocalVar (UN "x")]
-mlfExtPrim (NS _ (UN "prim__schemeCall")) =
-  mlfLam [UN "_rTy", UN "fn", UN "_args", UN "_world"] $
-    mlfLibCall "Stdlib.failwith" [mlfLocalVar (UN "fn")]
-mlfExtPrim (NS _ (UN "prim__codegen")) = mlfString "malfunction"
-mlfExtPrim (NS _ (UN "prim__os")) = mlfGlobal "Rts.System.os_name"
+mlfExtPrim (NS _ (UN (Basic "prim__newArray"))) =
+  mlfLam [un "_ty", un "n", un "x", un "_world"] $
+    sexp [text "makevec", mlfLocalVar (un "n"), mlfLocalVar (un "x")]
+mlfExtPrim (NS _ (UN (Basic "prim__arrayGet"))) =
+  mlfLam [un "_ty", un "arr", un "i", un "_world"] $
+    sexp [text "load", mlfLocalVar (un "arr"), mlfLocalVar (un "i")]
+mlfExtPrim (NS _ (UN (Basic "prim__arraySet"))) =
+  mlfLam [un "_ty", un "arr", un "i", un "x", un "_world"] $
+    sexp [text "store", mlfLocalVar (un "arr"), mlfLocalVar (un "i"), mlfLocalVar (un "x")]
+mlfExtPrim (NS _ (UN (Basic "prim__newIORef"))) =
+  mlfLam [un "_ty", un "x", un "_world"] $
+    sexp [text "makevec", show 1, mlfLocalVar (un "x")]
+mlfExtPrim (NS _ (UN (Basic "prim__readIORef"))) =
+  mlfLam [un "_ty", un "ref", un "_world"] $
+    sexp [text "load", mlfLocalVar (un "ref"), show 0]
+mlfExtPrim (NS _ (UN (Basic "prim__writeIORef"))) =
+  mlfLam [un "_ty", un "ref", un "x", un "_world"] $
+    sexp [text "store", mlfLocalVar (un "ref"), show 0, mlfLocalVar (un "x")]
+mlfExtPrim (NS _ (UN (Basic "prim__schemeCall"))) =
+  mlfLam [un "_rTy", un "fn", un "_args", un "_world"] $
+    mlfLibCall "Stdlib.failwith" [mlfLocalVar (un "fn")]
+mlfExtPrim (NS _ (UN (Basic "prim__codegen"))) = mlfString "malfunction"
+mlfExtPrim (NS _ (UN (Basic "prim__os"))) = mlfGlobal "Rts.System.os_name"
 mlfExtPrim n = mlfError $ "unimplemented external primitive: " ++ show n
 
 mlfConstant : Constant -> Doc
@@ -418,7 +422,7 @@ mlfSwitch scrut alts Nothing = parens $
   catchall : Doc
   catchall =
     mlfConDflt $
-      mlfLet (UN "_") (mlfLibCall "Rts.Debug.inspect" [show 0, scrut])$
+      mlfLet (un "_") (mlfLibCall "Rts.Debug.inspect" [show 0, scrut])$
         mlfError "unmatched pattern! (block tree dump above)"
 
 mlfConstDflt : Doc -> Doc
@@ -579,7 +583,7 @@ parameters (ldefs : SortedSet Name, nsMapping : StringMap ModuleName, curModuleN
       mlfLam args (mlfBlock mbTag $ map mlfLocalVar args)
     where
       args : List Name
-      args = [UN $ "arg" ++ show i | i <- [0..cast {to = Int} arity-1]]
+      args = [un $ "arg" ++ show i | i <- [0..cast {to = Int} arity-1]]
 
   mlfBody (MkNmForeign ccs args cty) =
     mlfLam (map fst lamArgs) $
