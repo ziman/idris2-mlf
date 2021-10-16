@@ -938,7 +938,93 @@ executeExpr c tmpDir tm
               Just outn => map (const ()) $ coreLift $ system outn
               Nothing => pure ()
 
+incCompile : Ref Ctxt Defs -> String -> Core (Maybe (String, List String))
+incCompile c sourceFile = do
+  fnameMlf <- getTTCFileName sourceFile "mlf"
+  soFile <- getTTCFileName sourceFile "so"
+  soFilename <- getObjFileName sourceFile "so"
+  cdata <- getIncCompileData False Cases
+
+  d <- getDirs
+  let outputDir = d.build_dir </> "ttc"
+
+  let ndefs@(_::_) = namedDefs cdata
+      | [] => pure (Just ("", []))
+  let ldefs = lazyDefs ndefs
+
+  let defsMlf = map (mlfDef ldefs nsMapping mlModName) ndefs
+  let code = render " " $ parens (
+        text "module"
+        $$ indent (
+             mlfRec defsMlf
+          $$ text ""
+          $$ parens (
+            text "export"
+            $$ indent (vcat [mlfGlobalVar n | (n, _, _) <- defs])
+            )
+          )
+        )
+        $$ text ""
+        $$ text "; vim: ft=lisp"
+        $$ text ""  -- end with a newline
+
+  -- write the MLF file
+  Right () <- coreLift $ writeFile fnameMlf code
+    | Left err => throw (FileErr fnameMlf err)
+
+  let cmd = unwords
+        [ " (cd " ++ bld
+        -- rebuild only the outdated MLF modules
+        , unwords
+          [    " && ocamlfind opt -I +threads -g -c " ++ mod.name.string ++ ".mli "
+            ++ " && malfunction cmx " ++ mod.name.string ++ ".mlf"
+            -- mark the module build as successful
+            ++ " && mv " ++ mod.name.string ++ ".hash.tmp " ++ mod.name.string ++ ".hash"
+          | mod <- modules
+          , mod.outdated
+          ]
+        -- link it all together
+        , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink -g "
+            ++ "rts_c.o "
+            ++ !(findLibraryFile "libidris2_support.a") ++ " "
+            ++ "Rts.cmx "
+            ++ unwords [mod.name.string ++ ".cmx" | mod <- modules]
+            ++ " -o ../" ++ outfile
+        , ")"
+        ]
+
+  coreLift $ putStrLn cmd
+  ok <- coreLift $ system cmd
+  if ok == 0
+    then pure (Just (outputDir </> outfile))
+    else pure Nothing
+
+{-
+   l <- newRef {t = List String} Loaded ["libc", "libc 6"]
+   s <- newRef {t = List String} Structs []
+
+   fgndefs <- traverse (getFgnCall version) ndefs
+   compdefs <- traverse (getScheme chezExtPrim chezString) ndefs
+   let code = fastAppend (map snd fgndefs ++ compdefs)
+   Right () <- coreLift $ writeFile ssFile code
+      | Left err => throw (FileErr ssFile err)
+
+   -- Compile to .so
+   let tmpFileAbs = outputDir </> "compileChez"
+   let build = "(parameterize ([optimize-level 3] " ++
+               "[compile-file-message #f]) (compile-file " ++
+              show ssFile ++ "))"
+   Right () <- coreLift $ writeFile tmpFileAbs build
+      | Left err => throw (FileErr tmpFileAbs err)
+   coreLift_ $ system (chez ++ " --script \"" ++ tmpFileAbs ++ "\"")
+   -}
+
+   pure (Just (soFilename, mapMaybe fst fgndefs))
+
+||| Codegen wrapper for Chez scheme implementation.
+export
+
 main : IO ()
 main = mainWithCodegens
-  [ ("mlf", MkCG compileExpr executeExpr Nothing Nothing)
+  [ ("mlf", MkCG compileExpr executeExpr (Just incCompile) (Just ".o"))
   ]
