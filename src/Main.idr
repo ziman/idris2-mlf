@@ -499,8 +499,8 @@ parameters (ldefs : SortedSet Name)
     mlfTm (NmLocal fc n) = mlfLocalVar n
     mlfTm (NmRef fc n) =
         if contains n ldefs
-          then mlfForce (mlfName n)
-          else mlfName n
+          then mlfForce (mlfGlobalVar n)
+          else mlfGlobalVar n
     mlfTm (NmLam fc n rhs) = mlfLam [n] (mlfTm rhs)
     mlfTm (NmLet fc n val rhs) = mlfLet n (mlfTm val) (mlfTm rhs)
     mlfTm (NmApp fc f args) =
