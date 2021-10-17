@@ -755,7 +755,7 @@ compileExpr : Ref Ctxt Defs
   -> (tmpDir : String) -> (outputDir : String)
   -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileExpr c tmpDir outputDir tm outfile = do
-  let bld = tmpDir </> "mlf-" ++ outfile
+  let bld = tmpDir </> "ttc"
   Right () <- coreLift $ mkdirAll bld
     | Left err => throw (FileErr bld err)
 
@@ -793,7 +793,7 @@ compileExpr c tmpDir outputDir tm outfile = do
   let cmd = unwords
         [ "(cd " ++ bld
         , "&& malfunction cmx Main.mlf"
-        , "&& ocamlfind opt -I +threads -g -c Main.mli "
+        -- , "&& ocamlfind opt -I +threads -g -c Main.mli "
         , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink -g "
             ++ "rts_c.o "
             ++ !(findLibraryFile "libidris2_support.a") ++ " "
@@ -818,14 +818,16 @@ executeExpr c tmpDir tm
 
 incCompile : Ref Ctxt Defs -> String -> Core (Maybe (String, List String))
 incCompile c sourceFile = do
-  fnameMlf <- getTTCFileName sourceFile "mlf"
-  soFile <- getTTCFileName sourceFile "so"
-  soFilename <- getObjFileName sourceFile "so"
-  cdata <- getIncCompileData False Cases
-
   d <- getDirs
-  let outputDir = d.build_dir </> "ttc"
+  let dirTtc = d.build_dir </> "ttc"
 
+  fnameMlf <- getObjFileName sourceFile "mlf"
+  fnameMli <- getObjFileName sourceFile "mli"
+  fnameCmx <- getObjFileName sourceFile "cmx"
+  fnameO   <- getObjFileName sourceFile "o"
+  -- soFilename <- getObjFileName sourceFile "so"
+
+  cdata <- getIncCompileData False Cases
   let defs@(_::_) = namedDefs cdata
       | [] => pure (Just ("", []))
   let ldefs = lazyDefs defs
@@ -847,40 +849,27 @@ incCompile c sourceFile = do
         $$ text ""  -- end with a newline
 
   -- write the MLF file
-  Right () <- coreLift $ writeFile fnameMlf code
-    | Left err => throw (FileErr fnameMlf err)
+  Right () <- coreLift $ writeFile (dirTtc </> fnameMlf) code
+    | Left err => throw (FileErr (dirTtc </> fnameMlf) err)
 
   let cmd = unwords
-        [ "(cd " ++ bld
+        [ "(cd " ++ dirTtc
         -- rebuild only the outdated MLF modules
-        , "&& ocamlfind opt -I +threads -g -c " ++ mod.name.string ++ ".mli "
-        , "&& malfunction cmx " ++ mod.name.string ++ ".mlf"
-            -- mark the module build as successful
-            ++ " && mv " ++ mod.name.string ++ ".hash.tmp " ++ mod.name.string ++ ".hash"
-          | mod <- modules
-          , mod.outdated
-          ]
-        -- link it all together
-        , "&& ocamlfind opt -thread -package zarith -linkpkg -nodynlink -g "
-            ++ "rts_c.o "
-            ++ !(findLibraryFile "libidris2_support.a") ++ " "
-            ++ "Rts.cmx "
-            ++ unwords [mod.name.string ++ ".cmx" | mod <- modules]
-            ++ " -o ../" ++ outfile
+        , "&& malfunction cmx " ++ fnameMlf
+        -- , "&& ocamlfind opt -I +threads -g -c " ++ fnameMli
         , ")"
         ]
 
   coreLift $ putStrLn cmd
   ok <- coreLift $ system cmd
-  if ok == 0
-    then pure (Just (outputDir </> outfile))
-    else pure Nothing
+  pure $ if ok == 0
+    then Just (dirTtc </> fnameO, [])
+    else Nothing
 
 {-
    l <- newRef {t = List String} Loaded ["libc", "libc 6"]
    s <- newRef {t = List String} Structs []
 
-   fgndefs <- traverse (getFgnCall version) ndefs
    compdefs <- traverse (getScheme chezExtPrim chezString) ndefs
    let code = fastAppend (map snd fgndefs ++ compdefs)
    Right () <- coreLift $ writeFile ssFile code
@@ -894,13 +883,12 @@ incCompile c sourceFile = do
    Right () <- coreLift $ writeFile tmpFileAbs build
       | Left err => throw (FileErr tmpFileAbs err)
    coreLift_ $ system (chez ++ " --script \"" ++ tmpFileAbs ++ "\"")
-   -}
 
    pure (Just (soFilename, mapMaybe fst fgndefs))
+-}
 
 ||| Codegen wrapper for Chez scheme implementation.
 export
-
 main : IO ()
 main = mainWithCodegens
   [ ("mlf", MkCG compileExpr executeExpr (Just incCompile) (Just ".o"))
