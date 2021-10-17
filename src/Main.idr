@@ -751,10 +751,10 @@ copy dirs bld fn =
         | e => throw (FileErr path (GenericFileError 0))
       pure ()
 
-compileExpr : Ref Ctxt Defs
+compileExprWhole : Ref Ctxt Defs
   -> (tmpDir : String) -> (outputDir : String)
   -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
-compileExpr c tmpDir outputDir tm outfile = do
+compileExprWhole c tmpDir outputDir tm outfile = do
   let bld = tmpDir </> "ttc"
   Right () <- coreLift $ mkdirAll bld
     | Left err => throw (FileErr bld err)
@@ -807,6 +807,22 @@ compileExpr c tmpDir outputDir tm outfile = do
   if ok == 0
     then pure (Just (outputDir </> outfile))
     else pure Nothing
+
+{-
+compileExprInc : Ref Ctxt Defs
+  -> (tmpDir : String) -> (outputDir : String)
+  -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
+compileExprInc c tmpDir outputDir tm outfile = ?cew_inc
+-}
+
+compileExpr : Ref Ctxt Defs
+  -> (tmpDir : String) -> (outputDir : String)
+  -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
+compileExpr c tmpDir outputDir tm outfile = do
+  s <- getSession
+  if not s.wholeProgram && (Other "mlf" `elem` s.incrementalCGs)
+    then compileExprWhole c tmpDir outputDir tm outfile  -- TODO: inc
+    else compileExprWhole c tmpDir outputDir tm outfile
 
 executeExpr : Ref Ctxt Defs -> (tmpDir : String) -> ClosedTerm -> Core ()
 executeExpr c tmpDir tm
