@@ -755,7 +755,7 @@ compileExprWhole : Ref Ctxt Defs
   -> (tmpDir : String) -> (outputDir : String)
   -> ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileExprWhole c tmpDir outputDir tm outfile = do
-  let bld = tmpDir </> "ttc"
+  let bld = tmpDir </> "mlf-" ++ outfile
   Right () <- coreLift $ mkdirAll bld
     | Left err => throw (FileErr bld err)
 
@@ -832,8 +832,8 @@ executeExpr c tmpDir tm
               Just outn => map (const ()) $ coreLift $ system outn
               Nothing => pure ()
 
-incCompile : Ref Ctxt Defs -> String -> Core (Maybe (String, List String))
-incCompile c sourceFile = do
+compileModuleInc : Ref Ctxt Defs -> String -> Core (Maybe (String, List String))
+compileModuleInc c sourceFile = do
   d <- getDirs
   let dirTtc = d.build_dir </> "ttc"
 
@@ -907,5 +907,5 @@ incCompile c sourceFile = do
 export
 main : IO ()
 main = mainWithCodegens
-  [ ("mlf", MkCG compileExpr executeExpr (Just incCompile) (Just ".o"))
+  [ ("mlf", MkCG compileExpr executeExpr (Just compileModuleInc) (Just ".o"))
   ]
