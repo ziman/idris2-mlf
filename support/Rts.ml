@@ -135,6 +135,11 @@ module C = struct
         external idris2_getEnvPair : int -> string pointer = "ml_idris2_getEnvPair"
         external idris2_getErrno : world -> int = "ml_idris2_getErrno"
         external idris2_strerror : int -> string = "ml_idris2_strerror"
+        external idris2_getArgCount : world -> int = "ml_idris2_getArgCount"
+        external idris2_getArg : int -> string = "ml_idris2_getArg"
+
+        (* idris_system.h *)
+        external idris2_system : string -> int = "ml_idris2_system"
 
         (* idris_file.h *)
         external idris2_openFile : string -> string -> filep = "ml_idris2_openFile"
@@ -152,6 +157,7 @@ module C = struct
         external idris2_readChars : int -> filep -> string pointer = "ml_idris2_readChars"
 
         external idris2_writeLine : filep -> string -> int = "ml_idris2_writeLine"
+        external idris2_seekLine : filep -> int = "ml_idris2_seekLine"
 
         external idris2_eof : filep -> int = "ml_idris2_eof"
         external idris2_fileAccessTime : filep -> int = "ml_idris2_fileAccessTime"

@@ -20,6 +20,7 @@
 #include "idris_file.h"
 #include "idris_net.h"
 #include "idris_support.h"
+#include "idris_system.h"
 #include "idris_term.h"
 
 CAMLprim value c_hello(value i) {
@@ -576,11 +577,32 @@ CAMLprim value ml_idris2_getErrno(value world)
 	CAMLreturn(Val_int(errnum));
 }
 
+CAMLprim value ml_idris2_getArgCount(value world)
+{
+	CAMLparam1(world);
+	int nargs = idris2_getArgCount();
+	CAMLreturn(Val_int(nargs));
+}
+
+CAMLprim value ml_idris2_getArg(value i)
+{
+	CAMLparam1(i);
+	const char * arg = idris2_getArg(Int_val(i));
+	CAMLreturn(caml_copy_string(arg));
+}
+
+CAMLprim value ml_idris2_system(value cmd)
+{
+	CAMLparam1(cmd);
+	int result = idris2_system(String_val(cmd));
+	CAMLreturn(Val_int(result));
+}
+
 CAMLprim value ml_idris2_strerror(value errnum)
 {
 	CAMLparam1(errnum);
 	const char * str = idris2_strerror(Int_val(errnum));
-	CAMLreturn(caml_copy_string(str));  // copy the string
+	CAMLreturn(caml_copy_string(str));
 }
 
 CAMLprim value ml_idris2_getStr(value unit)
@@ -684,6 +706,12 @@ CAMLprim value ml_idris2_readLine(value file) {
   free(rptr);
 
   CAMLreturn(result);
+}
+
+CAMLprim value ml_idris2_seekLine(value file) {
+  CAMLparam1(file);
+  int result = idris2_seekLine((FILE *) file);
+  CAMLreturn(Val_int(result));
 }
 
 CAMLprim value ml_idris2_readChars(value num, value file) {
