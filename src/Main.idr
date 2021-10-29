@@ -390,6 +390,10 @@ mlfConstPat : Constant -> Maybe Doc
 mlfConstPat (BI x) = Nothing
 mlfConstPat (Str s) = Nothing
 mlfConstPat (Db x) = Nothing
+mlfConstPat (I32 _) = Nothing
+mlfConstPat (I64 _) = Nothing
+mlfConstPat (B32 _) = Nothing
+mlfConstPat (B64 _) = Nothing
 mlfConstPat c = Just $ mlfConstant c
 
 mlfConstEqCheck : Doc -> Constant -> Doc
