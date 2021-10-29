@@ -644,8 +644,30 @@ CAMLprim value ml_idris2_isNull(value ptr)
 	CAMLreturn(Val_int(result));
 }
 
+// XXX: put this into the idris headers
+FILE *idris2_popen(const char * cmd, const char * mode);
+void idris2_pclose(FILE * f);
 
+CAMLprim value ml_idris2_popen(value cmd, value mode)
+{
+	CAMLparam2(cmd, mode);
+	void * ptr = idris2_popen(String_val(cmd), String_val(mode));
+	CAMLreturn((value) ptr);
+}
 
+CAMLprim value ml_idris2_pclose(value stream)
+{
+	CAMLparam1(stream);
+	idris2_pclose((void *) stream);
+	CAMLreturn(Val_int(0));  // unit
+}
+
+CAMLprim value ml_idris2_chmod(value path, value mode)
+{
+	CAMLparam2(path, mode);
+	int result = idris2_chmod(String_val(path), Int_val(mode));
+	CAMLreturn(Val_int(result));
+}
 
 CAMLprim value ml_idris2_putStr(value s)
 {
@@ -1072,6 +1094,12 @@ CAMLprim value ml_idrnet_create_sockaddr() {
   CAMLparam0();
   value result = Val_int(0);
   CAMLreturn(result);
+}
+
+CAMLprim value ml_idrnet_listen(value fd, value backlog) {
+	CAMLparam2(fd, backlog);
+	int result = idrnet_listen(Int_val(fd), Int_val(backlog));
+	CAMLreturn(Val_int(result));
 }
 
 CAMLprim value ml_idrnet_accept(value sockaddr) {

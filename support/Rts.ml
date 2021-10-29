@@ -148,6 +148,7 @@ module C = struct
 
         external idris2_fileErrno : world -> int = "ml_idris2_fileErrno"
 
+        external idris2_chmod : string -> int -> int = "ml_idris2_chmod"
         external idris2_removeFile : string -> int = "ml_idris2_removeFile"
         external idris2_fileSize : filep -> int = "ml_idris2_fileSize"
 
@@ -163,6 +164,9 @@ module C = struct
         external idris2_fileAccessTime : filep -> int = "ml_idris2_fileAccessTime"
         external idris2_fileModifiedTime : filep -> int = "ml_idris2_fileModifiedTime"
         external idris2_fileStatusTime : filep -> int = "ml_idris2_fileStatusTime"
+
+        external idris2_popen : string -> string -> filep = "ml_idris2_popen"
+        external idris2_pclose : filep -> unit = "ml_idris2_pclose"
 
         external idris2_stdin_ : unit -> filep = "ml_idris2_stdin"
         let idris2_stdin : filep = idris2_stdin_ ()
@@ -221,6 +225,7 @@ module C = struct
         external idrnet_sockaddr_ipv4_port : 'sockaddr pointer -> int = "ml_idrnet_sockaddr_ipv4_port"
         external idrnet_create_sockaddr : world -> 'sockaddr pointer = "ml_idrnet_create_sockaddr"
 
+        external idrnet_listen : int -> int -> int = "ml_idrnet_listen"
         external idrnet_accept : int -> 'sockaddr pointer -> int = "ml_idrnet_accept"
 
         external idrnet_send : int -> string -> int = "ml_idrnet_send"
