@@ -567,6 +567,15 @@ CAMLprim value inspect(value ty, value x)
 	CAMLreturn(Val_int(0));  // return unit
 }
 
+CAMLprim value ml_idris2_getErrno(value world)
+{
+	CAMLparam1(world);
+
+	int en = idris2_getErrno();
+
+	CAMLreturn(Val_int(en));
+}
+
 CAMLprim value ml_idris2_getStr(value unit)
 {
 	CAMLparam1(unit);
