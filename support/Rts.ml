@@ -134,6 +134,7 @@ module C = struct
         external idris2_getStr : world -> string = "ml_idris2_getStr"
         external idris2_getEnvPair : int -> string pointer = "ml_idris2_getEnvPair"
         external idris2_getErrno : world -> int = "ml_idris2_getErrno"
+        external idris2_strerror : int -> string = "ml_idris2_strerror"
 
         (* idris_file.h *)
         external idris2_openFile : string -> string -> filep = "ml_idris2_openFile"

@@ -571,9 +571,16 @@ CAMLprim value ml_idris2_getErrno(value world)
 {
 	CAMLparam1(world);
 
-	int en = idris2_getErrno();
+	int errnum = idris2_getErrno();
 
-	CAMLreturn(Val_int(en));
+	CAMLreturn(Val_int(errnum));
+}
+
+CAMLprim value ml_idris2_strerror(value errnum)
+{
+	CAMLparam1(errnum);
+	const char * str = idris2_strerror(Int_val(errnum));
+	CAMLreturn(caml_copy_string(str));  // copy the string
 }
 
 CAMLprim value ml_idris2_getStr(value unit)
