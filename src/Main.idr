@@ -358,15 +358,15 @@ mlfConstant (Db x) =
     [] => Pretty.show x <+> text ".0"
     _  => Pretty.show x
 
-mlfConstant (I8 x) = mlfError $ "I8: " ++ show x
-mlfConstant (I16 x) = mlfError $ "I16: " ++ show x
-mlfConstant (I32 x) = mlfError $ "I32: " ++ show x
-mlfConstant (I64 x) = mlfError $ "I64: " ++ show x
+mlfConstant (I8 x) = show x
+mlfConstant (I16 x) = show x
+mlfConstant (I32 x) = show x <+> text ".i32"
+mlfConstant (I64 x) = show x <+> text ".i64"
 
-mlfConstant (B8 x) = mlfError $ "B8: " ++ show x
-mlfConstant (B16 x) = mlfError $ "B16: " ++ show x
-mlfConstant (B32 x) = mlfError $ "B32: " ++ show x
-mlfConstant (B64 x) = mlfError $ "B64: " ++ show x
+mlfConstant (B8 x) = show x
+mlfConstant (B16 x) = show x
+mlfConstant (B32 x) = show x <+> text ".i32"
+mlfConstant (B64 x) = show x <+> text ".i64"
 
 mlfConstant WorldVal = show 0
 
