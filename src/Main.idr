@@ -395,6 +395,10 @@ mlfConstPat c = Just $ mlfConstant c
 mlfConstEqCheck : Doc -> Constant -> Doc
 -- these have special comparison ops
 mlfConstEqCheck x (BI y) = sexp [text "==.ibig", x, mlfConstant (BI y)]
+mlfConstEqCheck x (I32 y) = sexp [text "==.i32", x, mlfConstant (I32 y)]
+mlfConstEqCheck x (I64 y) = sexp [text "==.i64", x, mlfConstant (I64 y)]
+mlfConstEqCheck x (B32 y) = sexp [text "==.i32", x, mlfConstant (B32 y)]
+mlfConstEqCheck x (B64 y) = sexp [text "==.i64", x, mlfConstant (B64 y)]
 mlfConstEqCheck x (Db y) = sexp [text "==.f64", x, mlfConstant (Db y)]
 mlfConstEqCheck x (Str y) = mlfLibCall "String.equal" [x, mlfConstant (Str y)]
 
