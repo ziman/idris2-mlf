@@ -135,14 +135,20 @@ module C = struct
         external idris2_getEnvPair : int -> string pointer = "ml_idris2_getEnvPair"
         external idris2_getErrno : world -> int = "ml_idris2_getErrno"
         external idris2_strerror : int -> string = "ml_idris2_strerror"
-        external idris2_getArgCount : world -> int = "ml_idris2_getArgCount"
-        external idris2_getArg : int -> string = "ml_idris2_getArg"
         external idris2_getNull : world -> 'a pointer = "ml_idris2_getNull"
         external idris2_sleep : int -> unit = "ml_idris2_sleep"
         external idris2_usleep : int -> unit = "ml_idris2_usleep"
         external idris2_time : world -> int = "ml_idris2_time"
         external idris2_getPID : world -> int = "ml_idris2_getPID"
         external idris2_getNProcessors : world -> int = "ml_idris2_getNProcessors"
+
+        (* This is broken in C, let's patch it in OCaml instead.
+        external idris2_getArgCount : world -> int = "ml_idris2_getArgCount"
+        external idris2_getArg : int -> string = "ml_idris2_getArg"
+        *)
+
+        let idris2_getArgCount (_ : world) : int = Array.length Sys.argv
+        let idris2_getArg (i : int) : string = Array.get Sys.argv i
 
         (* idris_system.h *)
         external idris2_system : string -> int = "ml_idris2_system"
