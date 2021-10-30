@@ -137,6 +137,12 @@ module C = struct
         external idris2_strerror : int -> string = "ml_idris2_strerror"
         external idris2_getArgCount : world -> int = "ml_idris2_getArgCount"
         external idris2_getArg : int -> string = "ml_idris2_getArg"
+        external idris2_getNull : world -> 'a pointer = "ml_idris2_getNull"
+        external idris2_sleep : int -> unit = "ml_idris2_sleep"
+        external idris2_usleep : int -> unit = "ml_idris2_usleep"
+        external idris2_time : world -> int = "ml_idris2_time"
+        external idris2_getPID : world -> int = "ml_idris2_getPID"
+        external idris2_getNProcessors : world -> int = "ml_idris2_getNProcessors"
 
         (* idris_system.h *)
         external idris2_system : string -> int = "ml_idris2_system"
@@ -164,6 +170,7 @@ module C = struct
         external idris2_fileAccessTime : filep -> int = "ml_idris2_fileAccessTime"
         external idris2_fileModifiedTime : filep -> int = "ml_idris2_fileModifiedTime"
         external idris2_fileStatusTime : filep -> int = "ml_idris2_fileStatusTime"
+        external idris2_fileIsTTY : filep -> int = "ml_idris2_fileIsTTY"
 
         external idris2_popen : string -> string -> filep = "ml_idris2_popen"
         external idris2_pclose : filep -> unit = "ml_idris2_pclose"

@@ -644,6 +644,55 @@ CAMLprim value ml_idris2_isNull(value ptr)
 	CAMLreturn(Val_int(result));
 }
 
+CAMLprim value ml_idris2_getNull(value unit)
+{
+	CAMLparam1(unit);
+	void * result = idris2_getNull();
+	CAMLreturn((value) result);
+}
+
+CAMLprim value ml_idris2_sleep(value sec)
+{
+	CAMLparam1(sec);
+	idris2_sleep(Int_val(sec));
+	CAMLreturn(Val_int(0));  // unit
+}
+
+CAMLprim value ml_idris2_usleep(value usec)
+{
+	CAMLparam1(usec);
+	idris2_usleep(Int_val(usec));
+	CAMLreturn(Val_int(0));  // unit
+}
+
+CAMLprim value ml_idris2_time(value unit)
+{
+	CAMLparam1(unit);
+	int result = idris2_time();
+	CAMLreturn(Val_int(result));
+}
+
+CAMLprim value ml_idris2_setArgs(value argc, value argv)
+{
+	CAMLparam2(argc, argv);
+	caml_failwith("TODO: ml_idris2_setArgs not implemented");
+	CAMLreturn(Val_int(0));  // unit
+}
+
+CAMLprim value ml_idris2_getPID(value unit)
+{
+	CAMLparam1(unit);
+	int result = idris2_getPID();
+	CAMLreturn(Val_int(result));
+}
+
+CAMLprim value ml_idris2_getNProcessors(value unit)
+{
+	CAMLparam1(unit);
+	int result = idris2_getNProcessors();
+	CAMLreturn(Val_int(result));
+}
+
 // XXX: put this into the idris headers
 FILE *idris2_popen(const char * cmd, const char * mode);
 void idris2_pclose(FILE * f);
@@ -680,6 +729,12 @@ CAMLprim value ml_idris2_openFile(value name, value mode) {
 	CAMLparam2(name, mode);
 	const FILE* result = idris2_openFile(String_val(name), String_val(mode));
 	CAMLreturn((value) result);
+}
+
+CAMLprim value ml_idris2_fileIsTTY(value f) {
+	CAMLparam1(f);
+	int result = idris2_fileIsTTY((FILE *) f);
+	CAMLreturn(Val_int(result));
 }
 
 CAMLprim value ml_idris2_closeFile(value file) {
