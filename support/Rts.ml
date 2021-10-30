@@ -218,6 +218,14 @@ module C = struct
         external idrnet_peek : 'buffer pointer -> int -> int = "ml_idrnet_peek"
         external idrnet_poke : 'buffer pointer -> int -> int = "ml_idrnet_poke"
 
+        external idrnet_close : int -> int = "ml_idrnet_close"
+        external idrnet_fdopen : int -> string -> 'file pointer = "ml_idrnet_fdopen"
+        external idrnet_sockaddr_unix : 'address pointer -> string = "ml_idrnet_sockaddr_unix"
+        external idrnet_sockaddr_port : int -> int = "ml_idrnet_sockaddr_port"
+        (* external idrnet_sendto_buf : int -> 'buffer pointer -> int -> string -> int -> int -> int = "ml_idrnet_sendto_buf" *)
+        let external_idrnet_sendto_buf (_ : int) (_ : 'buffer pointer) (_ : int) (_ : string) (_ : int) (_ : int) = 0  (* TODO *)
+        external idrnet_getaddrinfo : ('address pointer) pointer -> string -> int -> int -> int = "ml_idrnet_getaddrinfo"
+
         external idrnet_errno : world -> int = "ml_idrnet_errno"
 
         external idrnet_socket : int -> int -> int -> int = "ml_idrnet_socket"

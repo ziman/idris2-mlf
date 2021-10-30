@@ -1074,6 +1074,44 @@ CAMLprim value ml_idris2_getBufferString(value src, value ofs, value max_width) 
 
 /* Idrnet */
 
+CAMLprim value ml_idrnet_close(value fd) {
+	CAMLparam1(fd);
+	// TODO
+	CAMLreturn(Val_int(0));
+}
+
+CAMLprim value ml_idrnet_fdopen(value fd, value mode) {
+	CAMLparam2(fd, mode);
+	// TODO
+	CAMLreturn((value) NULL);
+}
+
+CAMLprim value ml_idrnet_sockaddr_unix(value sockaddr) {
+	CAMLparam1(sockaddr);
+	// TODO
+	CAMLreturn(caml_copy_string("(TODO)"));
+}
+
+CAMLprim value ml_idrnet_sockaddr_port(value fd) {
+	CAMLparam1(fd);
+	// TODO
+	CAMLreturn(Val_int(0));
+}
+
+/*
+CAMLprim value ml_idrnet_sendto_buf(value sockfd, value buf, value buf_len, value host, value port, value family) {
+	CAMLparam6(sockfd, buf, buf_len, host, port, family);
+	// TODO
+	CAMLreturn(Val_int(0));
+}
+*/
+
+CAMLprim value ml_idrnet_getaddrinfo(value address_res, value host, value port, value family, value socket_type) {
+	CAMLparam5(address_res, host, port, family, socket_type);
+	// TODO
+	CAMLreturn(Val_int(0));
+}
+
 CAMLprim value ml_idrnet_malloc(value size) {
   CAMLparam1(size);
   void * result = idris2_malloc(Val_int(size));
