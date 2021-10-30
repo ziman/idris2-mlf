@@ -1485,3 +1485,16 @@ CAMLprim value ml_os_clock_valid(value clock)
 	}
 }
 
+CAMLprim value ml_idris2_malloc(value size)
+{
+	CAMLparam1(size);
+	void * result = idris2_malloc(Int_val(size));
+	CAMLreturn((value) result);
+}
+
+CAMLprim value ml_idris2_free(value buf)
+{
+	CAMLparam1(buf);
+	idris2_free((void *) buf);
+	CAMLreturn(Val_int(0));  // unit
+}

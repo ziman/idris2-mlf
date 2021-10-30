@@ -191,6 +191,10 @@ module C = struct
         external idris2_removeDir : string -> int = "ml_idris2_removeDir"
         external idris2_nextDirEntry : 'a pointer -> string = "ml_idris2_nextDirEntry"
 
+        (* idris_memory.h *)
+        external idris2_malloc : int -> 'buf pointer = "ml_idris2_malloc"
+        external idris2_free : 'buf pointer -> unit = "ml_idris2_free"
+
         (* idris_buffer.h *)
         external idris2_newBuffer : int -> 'buffer pointer = "ml_idris2_newBuffer"
         external idris2_freeBuffer : 'buffer pointer -> unit = "ml_idris2_freeBuffer"
