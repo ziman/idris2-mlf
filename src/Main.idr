@@ -298,6 +298,76 @@ mlfOp (Cast StringType CharType) [x] = mlfLibCall "Rts.String.head" [x]
 mlfOp (Cast StringType DoubleType) [x] = mlfLibCall "Float.of_string" [x]
 mlfOp (Cast DoubleType StringType) [x] = mlfLibCall "Float.to_string" [x]
 
+mlfOp (Cast Int8Type IntType) [x] = x
+mlfOp (Cast IntType Int8Type) [x] = x
+mlfOp (Cast Int8Type IntegerType) [x] = sexp [text "convert.int.ibig", x]
+mlfOp (Cast IntegerType Int8Type) [x] = sexp [text "convert.ibig.int", x]
+mlfOp (Cast Int8Type StringType) [x] = mlfLibCall "Stdlib.string_of_int" [x]
+mlfOp (Cast StringType Int8Type) [x] = mlfLibCall "Stdlib.int_of_string" [x]
+
+mlfOp (Cast Int16Type IntType) [x] = x
+mlfOp (Cast IntType Int16Type) [x] = x
+mlfOp (Cast Int16Type IntegerType) [x] = sexp [text "convert.int.ibig", x]
+mlfOp (Cast IntegerType Int16Type) [x] = sexp [text "convert.ibig.int", x]
+mlfOp (Cast Int16Type StringType) [x] = mlfLibCall "Stdlib.string_of_int" [x]
+mlfOp (Cast StringType Int16Type) [x] = mlfLibCall "Stdlib.int_of_string" [x]
+
+mlfOp (Cast Int32Type IntType) [x] = sexp [text "convert.i32.int", x]
+mlfOp (Cast IntType Int32Type) [x] = sexp [text "convert.int.i32", x]
+mlfOp (Cast Int32Type IntegerType) [x] = sexp [text "convert.i32.ibig", x]
+mlfOp (Cast IntegerType Int32Type) [x] = sexp [text "convert.ibig.i32", x]
+mlfOp (Cast Int32Type StringType) [x] = mlfLibCall "Int32.to_string" [x]
+mlfOp (Cast StringType Int32Type) [x] = mlfLibCall "Int32.of_string" [x]
+
+mlfOp (Cast Int64Type IntType) [x] = sexp [text "convert.i64.int", x]
+mlfOp (Cast IntType Int64Type) [x] = sexp [text "convert.int.i64", x]
+mlfOp (Cast Int64Type IntegerType) [x] = sexp [text "convert.i64.ibig", x]
+mlfOp (Cast IntegerType Int64Type) [x] = sexp [text "convert.ibig.i64", x]
+mlfOp (Cast Int64Type StringType) [x] = mlfLibCall "Int64.to_string" [x]
+mlfOp (Cast StringType Int64Type) [x] = mlfLibCall "Int64.of_string" [x]
+
+mlfOp (Cast Bits8Type IntType) [x] = x
+mlfOp (Cast IntType Bits8Type) [x] = x
+mlfOp (Cast Bits8Type IntegerType) [x] = sexp [text "convert.int.ibig", x]
+mlfOp (Cast IntegerType Bits8Type) [x] = sexp [text "convert.ibig.int", x]
+mlfOp (Cast Bits8Type StringType) [x] = mlfLibCall "Stdlib.string_of_int" [x]
+mlfOp (Cast StringType Bits8Type) [x] = mlfLibCall "Stdlib.int_of_string" [x]
+
+mlfOp (Cast Bits16Type IntType) [x] = x
+mlfOp (Cast IntType Bits16Type) [x] = x
+mlfOp (Cast Bits16Type IntegerType) [x] = sexp [text "convert.int.ibig", x]
+mlfOp (Cast IntegerType Bits16Type) [x] = sexp [text "convert.ibig.int", x]
+mlfOp (Cast Bits16Type StringType) [x] = mlfLibCall "Stdlib.string_of_int" [x]
+mlfOp (Cast StringType Bits16Type) [x] = mlfLibCall "Stdlib.int_of_string" [x]
+
+-- mlfOp (Cast Bits32Type IntType) [x] = mlfLibCall "Int32.unsigned_to_int" [x]
+mlfOp (Cast IntType Bits32Type) [x] = mlfLibCall "Int32.of_int" [x]
+-- mlfOp (Cast Bits32Type IntegerType) [x] = sexp [text "convert.i32.ibig", x]
+mlfOp (Cast IntegerType Bits32Type) [x] = sexp [text "convert.ibig.i32", x]
+mlfOp (Cast Bits32Type IntegerType) [x] = sexp
+  [ text "%.ibig"
+  , sexp
+    [ text "+.ibig"
+    , sexp [text "convert.i32.ibig", x]
+    , text "4294967296.ibig"
+    ]
+  , text "4294967296.ibig"
+  ]
+-- mlfOp (Cast Bits32Type StringType) [x] = mlfLibCall "Stdlib.string_of_int" [x]
+-- mlfOp (Cast StringType Bits32Type) [x] = mlfLibCall "Stdlib.int_of_string" [x]
+
+mlfOp (Cast IntType Bits64Type) [x] = mlfLibCall "Int64.of_int" [x]
+mlfOp (Cast IntegerType Bits64Type) [x] = sexp [text "convert.ibig.i64", x]
+mlfOp (Cast Bits64Type IntegerType) [x] = sexp
+  [ text "%.ibig"
+  , sexp
+    [ text "+.ibig"
+    , sexp [text "convert.i64.ibig", x]
+    , text "18446744073709551616.ibig"
+    ]
+  , text "18446744073709551616.ibig"
+  ]
+
 mlfOp StrLength [x] = mlfLibCall "Rts.String.length" [x]
 mlfOp StrHead [x] = mlfLibCall "Rts.String.head" [x]
 mlfOp StrTail [x] = mlfLibCall "Rts.String.tail" [x]
